@@ -543,9 +543,6 @@ put its modes on the HUD. Add the row on a job with `//jhud row add notes`, then
 send_command('jhud note Mode ' .. state.OffenseMode.value)
 send_command('jhud note WS ' .. state.WeaponskillMode.value)
 ```
-
-Notes last for the session.
-
 ## Good to know
 
 - **Updating** never needs a reset; see **Install → Updating**. To start a job from scratch
@@ -569,7 +566,3 @@ Notes last for the session.
 ## Credits
 
 Job-HUD 3.2 by Valdimar @ Phoenix.
-
-The panel's look (colors, header strip, recessed grid) follows the LATTICE display in
-[RahvinGS](https://github.com/RahvinCode/Gearswap) by Rahvin (MIT License). Job-HUD's code is
-its own; nothing from RahvinGS is required to use it.
