@@ -1,6 +1,6 @@
 --[[
     Job-HUD
-    Version: 3.2
+    Version: 3.4
     Author:  Valdimar @ Phoenix
 
     A job-aware heads-up display for Windower 4, drawn in the LATTICE style of RahvinGS.
@@ -20,7 +20,7 @@
 
 _addon.name = 'Job-HUD'
 _addon.author = 'Valdimar @ Phoenix'
-_addon.version = '3.2'
+_addon.version = '3.4'
 _addon.commands = { 'jhud', 'jobhud' }
 
 -- Jobs with a layout made for them (named in chat on load). Update when a job is added.
@@ -1955,9 +1955,15 @@ function ROWS.wyvern(lines)
         steady_off()
         return
     end
-    local hpp = pet.hpp or 100
+    local hpp = data.wyvern_hpp(pet.hpp or 100)
     local max = tonumber(job_cfg().wyvern_hp) or w.max
     local hcol = hpp < 25 and C.bad or hpp < 50 and C.warn or hpp < 75 and C.upkeep_warn or C.good
+    -- Time for Spirit Link: its HP is under the job's pet alarm (petalarm, 40% on DRG) and
+    -- Spirit Link is ready -> the HP blinks.
+    local link = data.resolve('Spirit Link')
+    local link_ready = link and learned_ja[link.id] and ((windower.ffxi.get_ability_recasts() or {})[link.recast_id] or 0) <= 0
+    local use_link = link_ready and pet_alarm()
+    if use_link and math.floor(os.clock() / 0.6) % 2 == 1 then hcol = C.dim end
     local seg
     if max then
         seg = { ('%s/%s'):format(commas(math.floor(max * hpp / 100 + 0.5)), commas(max)), hcol }
@@ -1965,13 +1971,25 @@ function ROWS.wyvern(lines)
         seg = { hpp .. '%', hcol }
     end
     lines[#lines + 1] = line(nil, { { 'Wyvern  ', C.label }, seg,
-        tip = 'Wyvern HP ' .. hpp .. '%' .. (max and ('; max about ' .. commas(max) .. (job_cfg().wyvern_hp and ' (set)' or #w.samples > 0 and (' (learned from ' .. #w.samples .. ' hits)') or ' (saved for this character)')) or '; max HP not known yet: learned from the damage it takes') })
+        tip = (use_link and 'Use Spirit Link! ' or '') .. 'Wyvern HP ' .. hpp .. '%' .. (max and ('; max about ' .. commas(max) .. (job_cfg().wyvern_hp and ' (set)' or #w.samples > 0 and (' (learned from ' .. #w.samples .. ' hits)') or ' (saved for this character)')) or '; max HP not known yet: learned from the damage it takes') })
     local st = w.steady
     if st then
+        -- Total HP it can take now: its HP plus what's left of the shield (1.3 x max HP - HP
+        -- when used). Coloured by the time left on Steady Wing (blinks in its last 30 s).
         local left = st.at + data.STEADY_TIME - os.clock()
-        local segs = { { 'Steady  ', C.label }, { fmt_time(left), wearing_color(left, 30) } }
-        if st.absorb then segs[#segs + 1] = { '  ~' .. commas(st.absorb), C.dim } end
-        segs.tip = 'Steady Wing: ' .. fmt_time(left) .. ' left' .. (st.absorb and (', absorbs about ' .. commas(st.absorb) .. ' damage (until used up)') or '')
+        local hp = max and math.floor(max * hpp / 100 + 0.5)
+        local absorb = max and math.max(0, math.floor(1.3 * max - max * st.hpp / 100)) or st.absorb
+        local shield = st.spent and 0 or absorb
+        local segs = { { 'Steady  ', C.label } }
+        if hp and shield then
+            segs[#segs + 1] = { '~' .. commas(hp + shield), wearing_color(left, 30) }
+            segs[#segs + 1] = { st.spent and ' (used)' or ' total', C.dim }
+        else
+            segs[#segs + 1] = { fmt_time(left), wearing_color(left, 30) }   -- (max HP not known yet)
+        end
+        segs.tip = 'Steady Wing: ' .. fmt_time(left) .. ' left'
+            .. (shield and (st.spent and '; the shield is used up' or ('; shield about ' .. commas(shield) .. ' (1.3 x max HP - its HP when used)')) or '')
+            .. (hp and shield and ('; HP ' .. commas(hp) .. ' + shield = about ' .. commas(hp + shield) .. ' total') or '')
         lines[#lines + 1] = line(nil, segs)
     else
         steady_off()

@@ -964,8 +964,11 @@ data.STEADY_TIME = 180
 function data.track_pet(act, me, pet)
     local w = data.wyvern
     if act.actor_id == me and act.category == 6 and act.param == STEADY_WING then
-        local hp = w.max and pet and math.floor(w.max * (pet.hpp or 100) / 100)
-        w.steady = { at = os.clock(), absorb = w.max and hp and math.floor(1.3 * w.max - hp) or nil }
+        local hpp = (w.last_hpp or (pet and pet.hpp) or 100)
+        local hp = w.max and math.floor(w.max * hpp / 100)
+        -- hpp: its HP % when used. Right after Steady Wing the game shows the HP % dip for a
+        -- second or two before it's back to full; that dip is ignored (see data.wyvern_hpp).
+        w.steady = { at = os.clock(), hpp = hpp, absorb = w.max and hp and math.floor(1.3 * w.max - hp) or nil }
     end
     if not (pet and pet.id) then return end
     for _, t in ipairs(act.targets or {}) do
@@ -979,11 +982,31 @@ function data.track_pet(act, me, pet)
 end
 
 -- Called every tick with the wyvern's HP % (nil: no wyvern).
+-- The wyvern's HP % to show: during the brief dip right after Steady Wing (no damage taken),
+-- the HP % from when it was used.
+function data.wyvern_hpp(hpp)
+    local st = data.wyvern.steady
+    if st and hpp and hpp < st.hpp and os.clock() - st.at < 4 and not st.hit then return st.hpp end
+    return hpp
+end
+
+-- Steady Wing's shield: { absorb = what it held at the start, left = its estimate now (nil
+-- unknown), spent = true once damage has got through it }.
+-- The game doesn't say how much of the shield is left. Damage it absorbs doesn't move the HP %,
+-- so it's taken as whole until the wyvern's HP % drops below where it was (the shield is used
+-- up), from then on as gone.
 function data.wyvern_tick(hpp)
     local w = data.wyvern
     local now = os.clock()
     if not hpp then w.last_hpp, w.pending, w.steady = nil, 0, nil return end
     if w.steady and now - w.steady.at > data.STEADY_TIME then w.steady = nil end
+    local st = w.steady
+    if st then
+        if w.pending > 0 then st.hit = true end
+        -- Past the dip: a drop below the HP % it had when used means damage got through.
+        if hpp < st.hpp and (st.hit or now - st.at >= 4) then st.spent = true end
+        if hpp > st.hpp then st.hpp = hpp end   -- healed: the shield still counts on top
+    end
     if w.last_hpp and hpp ~= w.last_hpp and w.pending > 0 then
         local drop = w.last_hpp - hpp
         -- (not while Steady Wing soaks damage, and only clear drops for a usable reading)
