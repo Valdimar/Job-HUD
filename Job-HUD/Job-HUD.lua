@@ -1,6 +1,6 @@
 --[[
     Job-HUD
-    Version: 3.4
+    Version: 3.5
     Author:  Valdimar @ Phoenix
 
     A job-aware heads-up display for Windower 4, drawn in the LATTICE style of RahvinGS.
@@ -20,7 +20,7 @@
 
 _addon.name = 'Job-HUD'
 _addon.author = 'Valdimar @ Phoenix'
-_addon.version = '3.4'
+_addon.version = '3.5'
 _addon.commands = { 'jhud', 'jobhud' }
 
 -- Jobs with a layout made for them (named in chat on load). Update when a job is added.
@@ -1894,16 +1894,30 @@ function ROWS.ws(lines)
         lines[#lines + 1] = line('SC', { { '--', C.dim } })
         return
     end
+    -- TP you had right after it (what it gave back): the first TP reading that differs from what
+    -- you had going in, or whatever it is 1.5 s later.
+    if w.tp_after == nil and w.at then
+        local p = windower.ffxi.get_player()
+        local tp = p and p.vitals and p.vitals.tp
+        local age = os.clock() - w.at
+        if tp and (tp ~= w.tp or age > 1.5) and age < 5 then w.tp_after = tp end
+    end
     -- Red when it healed the mob instead of hurting it (the mob absorbs that element).
     local tip = w.healed and (w.name .. ' healed the mob (it absorbs that element)') or nil
     local dmg = w.healed and { commas(w.damage or 0) .. ' healed', C.bad }
         or w.damage and { commas(w.damage), C.good } or { 'Miss', C.bad }
+    local tps = w.tp_after and { { '  TP ', C.label }, { tostring(w.tp_after), w.tp_after >= 1000 and C.good or C.text } } or {}
+    local tp_tip = w.tp_after and ('TP after ' .. w.name .. ': ' .. w.tp_after .. (w.tp and (' (used ' .. w.tp .. ')') or '')) or nil
     if compact.ws then
         -- Short on room: damage on the same line, after the name.
-        lines[#lines + 1] = line('WS', { { w.name .. '  ', w.healed and C.bad or C.text }, dmg, tip = tip })
+        local segs = { { w.name .. '  ', w.healed and C.bad or C.text }, dmg, tip = tip or tp_tip }
+        for _, sg in ipairs(tps) do segs[#segs + 1] = sg end
+        lines[#lines + 1] = line('WS', segs)
     else
         lines[#lines + 1] = line('WS', { { w.name, w.healed and C.bad or C.text }, tip = tip })
-        lines[#lines + 1] = line(nil, { indent, dmg })
+        local segs = { indent, dmg, tip = tp_tip }
+        for _, sg in ipairs(tps) do segs[#segs + 1] = sg end
+        lines[#lines + 1] = line(nil, segs)
     end
     if w.sc and w.sc_healed then
         lines[#lines + 1] = line('SC', { { w.sc, C.bad }, { '  ' .. commas(w.sc_damage or 0) .. ' healed', C.bad },

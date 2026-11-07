@@ -117,7 +117,7 @@ element's colour).
 | `tp` `hp` `mp` | One of them per line, colored by level |
 | `pet` | Pet name, with its HP% and TP indented on the line below (red `none` when no pet is out). Jobs with `pet_info` get more pet lines: **Ready** charges and time to the next one, **Tgt** (what the pet is attacking, with its HP%) and **Hate** (who that mob is attacking: `Pet` green, `You` yellow, anyone else red). On by default for BST |
 | `target` | Target name and HP% (add distance with `//jhud distance on`) |
-| `ws` | Three lines, always shown: your last weapon skill, its damage indented below it (`Miss` if it missed), and `SC` with the skillchain it closed and its damage (`SC --` when it didn't close one). If the weapon skill or skillchain **healed** the mob (it absorbs that element), its line turns **red** and shows `healed` after the amount; heals don't count as damage in `//jhud stats` |
+| `ws` | Three lines, always shown: your last weapon skill, its damage indented below it (`Miss` if it missed) followed by the TP you had right after it (`42,315  TP 212`: what the WS gave back; green at 1000+; hover for the TP it used), and `SC` with the skillchain it closed and its damage (`SC --` when it didn't close one). If the weapon skill or skillchain **healed** the mob (it absorbs that element), its line turns **red** and shows `healed` after the amount; heals don't count as damage in `//jhud stats` |
 | `upkeep` | Short tags for buffs you keep up: **green** on, **red** off. Wearing off, they **blink slowly**: **yellow** under 30 s left (`upkeep_warn`), **orange** under 10 s. The buff timers (`buffs` row), Aftermath, storm and Klimaform times do the same (`buff_warn`, 30 s) |
 | `buffs` | One line per tracked buff that's on you, with time left |
 | `timers` | Your own countdowns (see **Timers** below) |
@@ -568,7 +568,7 @@ Notes last for the session.
 
 ## Credits
 
-Job-HUD 3.4 by Valdimar @ Phoenix.
+Job-HUD 3.5 by Valdimar @ Phoenix.
 
 The panel's look (colors, header strip, recessed grid) follows the LATTICE display in
 [RahvinGS](https://github.com/RahvinCode/Gearswap) by Rahvin (MIT License). Job-HUD's code is

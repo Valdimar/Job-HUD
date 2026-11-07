@@ -562,8 +562,10 @@ local function on_ws(act, tp)
             end
         end
     end
+    -- tp: what you had going in; tp_after (filled in by the addon a moment later): TP left / given
+    -- back after it.
     data.last_ws = { name = en(ws), damage = hit and total or nil, sc = sc, sc_damage = sc_dmg, tp = tp,
-                     healed = healed, sc_healed = sc_healed }
+                     healed = healed, sc_healed = sc_healed, at = os.clock() }
     -- Session stats
     local st = data.stats
     local w = st.ws[data.last_ws.name] or { n = 0, hits = 0, total = 0, best = 0 }
