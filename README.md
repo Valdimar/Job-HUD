@@ -9,8 +9,6 @@ What's on the panel changes with your main job. **The panel itself stays the sam
 job**, so it never jumps around or covers something new when you change jobs. Every character
 has its own settings file.
 
-![DRG](docs/preview-DRG.png)
-
 ## Install
 
 1. Copy the `Job-HUD` folder into `Windower4/addons/`.
@@ -153,10 +151,6 @@ The header shows your jobs and levels on the left (with your Master Level, e.g. 
 | `SNK` `INVIS` | green when Sneak / Invisible is on, **red** when it isn't |
 
 Also available: `pet`, `signet`, `sync`. Choose them with `//jhud header`.
-
-![RUN](docs/preview-RUN.png)
-![WAR](docs/preview-WAR.png)
-![BST](docs/preview-BST.png)
 
 ## Your jobs
 
@@ -312,8 +306,6 @@ rows (`//jhud right ...`); any left-side row works there too, plus:
 a window: it opens 3 s after the weapon skill and closes 10 s after it. Each skillchain opens a
 new window 1 s shorter than the last. After step 5, or after Radiance or Umbra, the chain is
 closed. This follows the timing used by the
-[Skillchains](https://github.com/Ivaar/Skillchains) addon; it only shows the countdown, since
-that addon lists what can continue the chain.
 
 **Debuff timers.** DRG: Angon. WAR: Tomahawk. RUN: Gambit, Rayke. A timer starts when your
 ability lands (not on a miss) and ends when the game says it wore off, or the mob dies, or you
@@ -381,10 +373,6 @@ which stay distinct with those kinds of colour blindness:
 The light theme also darkens coloured text so it reads on a light panel. None of this changes
 your `<colors>` in the settings file, so switching back is exact. You can also type the names:
 `//jhud look deuteranopia`, `protanopia`, `tritanopia` (or `//jhud palette ...`).
-
-![DNC with deut](docs/preview-DNC-deut.png)
-
-![palettes and themes](docs/preview-RUN-redgreen.png)
 
 ## Timers
 
