@@ -1,7 +1,6 @@
 # Job-HUD
 
-A job-aware heads-up display for **Windower 4**, drawn in the *LATTICE* style of
-[RahvinGS](https://github.com/RahvinCode/Gearswap): a dark bordered panel with a header strip,
+A job-aware heads-up display for **Windower 4**. A dark bordered panel with a header strip,
 text rows on the left, a recessed grid in the middle, and a second text column on the right.
 Here the grid shows **cooldowns** instead of gear.
 
