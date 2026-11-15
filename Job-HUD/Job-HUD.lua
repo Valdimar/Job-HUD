@@ -1,6 +1,6 @@
 --[[
     Job-HUD
-    Version: 3.6
+    Version: 3.8
     Author:  Valdimar @ Phoenix
     Treasure Hunter tracking works the way THTracker (by Krizz) does.
 
@@ -21,7 +21,7 @@
 
 _addon.name = 'Job-HUD'
 _addon.author = 'Valdimar @ Phoenix'
-_addon.version = '3.7'
+_addon.version = '3.8'
 _addon.commands = { 'jhud', 'jobhud' }
 
 -- Says in chat when a newer version is on GitHub (once per load; see update_check.lua)

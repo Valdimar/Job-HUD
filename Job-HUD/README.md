@@ -30,14 +30,17 @@ settings were updated. The addon remembers which defaults each character was las
 
 ## Update check
 
-A few seconds after you log in, Job-HUD checks GitHub once for a newer version. If there is one,
-chat says so:
+A few seconds after you log in, Job-HUD checks GitHub once and always says in chat how it went:
 
 ```
-[Job-HUD] Version X.Y is out (you have 3.7). Get it from github.com/Valdimar/Job-HUD
+[Job-HUD] Up to date (version 3.8).
+[Job-HUD] UPDATE AVAILABLE: version X.Y is out (you have 3.8). Get it from github.com/Valdimar/Job-HUD
+[Job-HUD] Version 3.9 is newer than GitHub (3.8), so it hasn't been released yet.
+[Job-HUD] Couldn't check for updates (GitHub didn't answer). Try again with a reload.
 ```
 
-It only speaks up when GitHub has a newer version, and stays quiet if GitHub can't be reached.
+The "update available" line is in a different colour so it stands out. "Couldn't check" also
+covers Windower having no HTTPS support ("no HTTPS support"). `//lua reload Job-HUD` checks again.
 The game can pause for a moment while it checks (at most 3 seconds, usually much less).
 
 ## Same size on every job
@@ -589,7 +592,7 @@ Notes last for the session.
 
 ## Credits
 
-Job-HUD 3.7 by Valdimar @ Phoenix.
+Job-HUD 3.8 by Valdimar @ Phoenix.
 
 The panel's look (colors, header strip, recessed grid) follows the LATTICE display in
 [RahvinGS](https://github.com/RahvinCode/Gearswap) by Rahvin (MIT License). Job-HUD's code is
