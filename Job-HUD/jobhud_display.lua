@@ -28,7 +28,7 @@ local VPAD = 2
 local S              -- settings
 local COL, STROKE    -- effective colours and text stroke (theme / palette / opacity applied)
 local probe          -- measuring text
-local header_t, rows_t, right_t
+local header_t, rows_t, right_t, under_t
 local cell_t = {}    -- text objects for grid cells
 local seg_t = {}     -- text objects for bar segments
 local seg_count = 0  -- bar segments shown right now
@@ -138,6 +138,8 @@ local function sizes()
     z.lines = lines
     z.rows_w = left_chars() * cw
     z.rows_h = lines * lh
+    -- One text line under the grid (Treasure Hunter on your target), when it's on.
+    z.under_h = (grid_on() and S.th_line ~= false and G.position ~= 'bottom') and math.floor(lh + 2) or 0
     -- Right-hand text column (beside the grid): fixed width on every job, 0 = none.
     z.right_w = right_chars() * cw
     return z
@@ -189,6 +191,7 @@ function display.init(settings, colors, stroke)
     header_t = texts.new('', text_settings())
     rows_t = texts.new('', text_settings())
     right_t = texts.new('', text_settings())
+    under_t = texts.new('', text_settings())
     for i = 1, prim_cells do cell_t[i] = texts.new('', text_settings()) end
     for i = 1, MAX_SEG do seg_t[i] = texts.new('', text_settings()) end
     for i = 1, MAX_IND do ind_t[i] = texts.new('', text_settings()) end
@@ -223,6 +226,8 @@ function display.destroy()
     if rows_t then rows_t:destroy() end
     if right_t then right_t:destroy() end
     right_t = nil
+    if under_t then under_t:destroy() end
+    under_t = nil
     for _, t in ipairs(cell_t) do t:destroy() end
     for _, t in ipairs(ind_t) do t:destroy() end
     ind_t = {}
@@ -286,6 +291,7 @@ local function apply_visibility()
     if header_t then header_t:visible(on) end
     if rows_t then rows_t:visible(on) end
     if right_t then right_t:visible(on and S and right_chars() > 0) end
+    if under_t then under_t:visible(on and S and S.th_line ~= false and grid_on()) end
 end
 
 function display.hide_tip()
@@ -408,7 +414,7 @@ function display.render(model)
     else
         local gutter = grid and P.gutter or 0
         inner_w = z.rows_w + gutter + z.grid_w + (right and P.gutter + z.right_w or 0)
-        inner_h = math.max(z.rows_h, z.grid_h)
+        inner_h = math.max(z.rows_h, z.grid_h + z.under_h)
         gx = x + bw + pad + z.rows_w + gutter
         gy = body_top + VPAD
         rx = gx + z.grid_w + P.gutter
@@ -439,6 +445,7 @@ function display.render(model)
         header_t:pos(math.floor(x + bw + pad), math.floor(y + VPAD))
         rows_t:pos(math.floor(x + bw + pad), math.floor(body_top + VPAD))
         right_t:pos(math.floor(rx), math.floor(body_top + VPAD))
+        under_t:pos(math.floor(gx + 2), math.floor(gy + z.grid_h + 2))
         geom.left = { x = x + bw + pad, y = body_top + VPAD }
         geom.right = right and { x = rx, y = body_top + VPAD } or nil
         geom.cells = {}
@@ -457,6 +464,7 @@ function display.render(model)
     set_text(header_t, model.header)
     set_text(rows_t, model.rows)
     set_text(right_t, right and model.right or '')
+    set_text(under_t, z.under_h > 0 and model.under or '')
     n_ind = layout_indicators(model, x, y, W, n_ind)
     for i = 1, n_ind do set_color(pname('ind' .. i), model.indicators[i].color) end
     local segs_now = 0

@@ -744,6 +744,7 @@ function data.on_any_action(act, me)
     track_window(act)
     track_debuff(act, me)
     track_bounty(act)
+    data.track_th(act)
     data.dnc_action(act, me)
     data.track_member_buff(act, me)
     local t = act.targets and act.targets[1]
@@ -780,6 +781,7 @@ function data.on_0x029(packet)
         data.bounty[target] = nil
         data.mob_songs[target] = nil
         data.steps[target] = nil
+        data.th[target] = nil
         local actor = packet:unpack('I', 0x05)
         if data.is_ally and data.is_ally(actor) then data.stats.kills = data.stats.kills + 1 end
     end
@@ -1194,6 +1196,35 @@ function data.on_daze_worn(target, buff)
     end
 end
 
+------------------------------------------------------------------------------------------
+-- Treasure Hunter on mobs (the way THTracker by Krizz reads it): a melee hit's added effect
+-- "Treasure Hunter effectiveness ... increases to N" (message 603), or the same from a weapon
+-- skill / ability (608). Cleared when the mob dies, despawns, resets to full HP, or you zone.
+------------------------------------------------------------------------------------------
+data.th = {}   -- mob id -> TH level
+
+function data.track_th(act)
+    for _, t in ipairs(act.targets or {}) do
+        for _, a in ipairs(t.actions or {}) do
+            if a.has_add_effect and a.add_effect_message == 603 then data.th[t.id] = a.add_effect_param end
+            if a.message == 608 then data.th[t.id] = a.param end
+        end
+    end
+end
+
+-- 0x038 (mob animation 'kesu' = despawned) and 0x00E (NPC update: back to idle at 100% HP =
+-- it reset or respawned): its TH is gone.
+function data.on_th_0x038(packet)
+    local mob = packet:unpack('I', 0x05)          -- (1-based offsets)
+    if data.th[mob] and packet:sub(0x0D, 0x10) == 'kesu' then data.th[mob] = nil end
+end
+function data.on_th_0x00E(packet)
+    local npc = packet:unpack('I', 0x05)
+    if not data.th[npc] then return end
+    local hpp, status = packet:byte(0x1F), packet:byte(0x20)
+    if hpp == 100 and status == 0 then data.th[npc] = nil end
+end
+
 function data.clear_mobs()
     data.debuffs, data.windows, data.last_target = {}, {}, {}
     data.hover = { stacks = 0 }
@@ -1202,6 +1233,7 @@ function data.clear_mobs()
     data.member_songs = {}
     data.mob_songs = {}
     data.steps = {}
+    data.th = {}
 end
 
 ------------------------------------------------------------------------------------------

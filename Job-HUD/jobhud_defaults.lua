@@ -23,6 +23,7 @@ defaults.dnc_fm_max = 9              -- DNC: most finishing moves you can hold (
 defaults.dnc_step_jp = 20            -- DNC: your Step Duration job points (0-20): +1 s per Step and on the cap
 defaults.dnc_dance_merits = 5        -- DNC: Saber / Fan Dance merits (Horos / Etoile gear raises the dances' floor by 1% each)
 defaults.dnc_dance_reminder = true   -- DNC: 'no Waltz' / 'no Samba' under the dance stance
+defaults.th_line = true             -- 'TH 8  Mob' under the grid: Treasure Hunter on your target (//jhud th on|off)
 defaults.compact_mode = false        -- compact: no left rows / WS / SC; stances, shadows etc. on a narrow left column (//jhud compact)
 defaults.party_window_docked = true  -- right beside the main window; false once you drag it away (//jhud pw reset)
 defaults.party_window_x = 0          -- where it is when not docked

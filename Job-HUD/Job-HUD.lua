@@ -1,7 +1,8 @@
 --[[
     Job-HUD
-    Version: 3.5
+    Version: 3.6
     Author:  Valdimar @ Phoenix
+    Treasure Hunter tracking works the way THTracker (by Krizz) does.
 
     A job-aware heads-up display for Windower 4, drawn in the LATTICE style of RahvinGS.
 
@@ -20,7 +21,7 @@
 
 _addon.name = 'Job-HUD'
 _addon.author = 'Valdimar @ Phoenix'
-_addon.version = '3.5'
+_addon.version = '3.6'
 _addon.commands = { 'jhud', 'jobhud' }
 
 -- Jobs with a layout made for them (named in chat on load). Update when a job is added.
@@ -2857,7 +2858,25 @@ local function build_model()
         end
     end
 
-    return { header = header, header_chars = header_chars, indicators = inds,
+    -- Under the grid: Treasure Hunter on your target (sub-target first, like THTracker).
+    local under
+    if settings.th_line ~= false then
+        local C = palette
+        local mob = windower.ffxi.get_mob_by_target('st') or windower.ffxi.get_mob_by_target('t')
+        if not (mob and mob.is_npc) then mob = focus_mob() end
+        local lvl = mob and mob.is_npc and data.th[mob.id]
+        local room = settings.layout.columns * (settings.grid.cell_chars + 1) + 1
+        if lvl then
+            local name = mob.name or ''
+            local left = room - 3 - #tostring(lvl) - 2
+            if #name > left then name = name:sub(1, math.max(0, left)) end
+            under = cs(C.label, 'TH ') .. cs(C.good, tostring(lvl)) .. cs(C.text, '  ' .. name)
+        else
+            under = cs(C.label, 'TH ') .. cs(C.dim, '--')
+        end
+    end
+
+    return { header = header, header_chars = header_chars, indicators = inds, under = under,
              rows = left, right = right, cells = cells, gif = showbiz_gif,
              hovers = { left = left_hovers or {}, right = right_hovers or {} } }
 end
@@ -3161,6 +3180,10 @@ windower.register_event('incoming chunk', function(id, packet)
         data.on_0x076(packet)
     elseif id == 0x061 then
         data.on_0x061(packet)
+    elseif id == 0x038 then
+        data.on_th_0x038(packet)
+    elseif id == 0x00E then
+        data.on_th_0x00E(packet)
     elseif id == 0x00B then
         zoning = true
         if settings then display.hide() end
@@ -3294,11 +3317,12 @@ local HELP_ORDER = { 'panel', 'look', 'job', 'options', 'timers', 'setup' }
 local HELP_SECTIONS = {
     panel = {
         about = 'show / hide, dragging, position and size',
-        commands = { 'show', 'hide', 'toggle', 'compact', 'lock', 'unlock', 'partywindow', 'pw', 'pos', 'layout', 'size', 'font',
+        commands = { 'show', 'hide', 'toggle', 'compact', 'th', 'lock', 'unlock', 'partywindow', 'pw', 'pos', 'layout', 'size', 'font',
                      'width', 'lines', 'gridsize', 'cols', 'cell', 'rwidth', 'grid' },
         lines = {
             'show | hide | toggle        the panel',
             'compact [on|off]            grid + stances / shadows only (compact rows ... to pick them)',
+            'th on|off                   Treasure Hunter on your target, under the grid',
             'lock | unlock               stop / allow dragging (locked: clicks go to the game)',
             'partywindow [on|off|<w>]    second window: party + buffs you can cast (pw)',
             'pw for [<Buff> <JOB/Name...>|all]  which members each buff shows on',
@@ -3636,6 +3660,11 @@ windower.register_event('addon command', function(cmd, ...)
         else msg('Usage: petalarm <HP%> | petalarm off   (now ' .. tostring(cfg.pet_alarm or 0) .. ')') return end
         msg(player.main_job .. ': ' .. ((cfg.pet_alarm or 0) > 0 and ('pet line flashes under ' .. cfg.pet_alarm .. '% pet HP.') or 'pet HP alarm off.'))
         save()
+    elseif cmd == 'th' then
+        -- //jhud th on|off: the Treasure Hunter line under the grid.
+        settings.th_line = on_off(args[1], settings.th_line ~= false)
+        msg('Treasure Hunter line under the grid ' .. (settings.th_line and 'on.' or 'off.'))
+        save() display.invalidate()
     elseif cmd == 'compact' then
         -- //jhud compact [on|off]: grid plus a narrow column of stances / shadows etc.
         -- //jhud compact rows [add|remove|move|clear ...]: this job's compact rows (clear = automatic).

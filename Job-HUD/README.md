@@ -276,6 +276,15 @@ back beside the main window.
 
 ![Party window](docs/preview-party-window.png)
 
+## Treasure Hunter (under the grid)
+
+A line under the grid shows the Treasure Hunter level on your target, `TH 9  Kaggen` (`TH --`
+when none has been seen). It reads TH the same way THTracker by Krizz does: a melee hit's added
+effect "Treasure Hunter effectiveness ... increases to N", or the same from a weapon skill or
+ability. Anyone's procs count. It follows your sub-target first, then your target, then the mob
+you're fighting, and clears when the mob dies, despawns, resets to full HP while idle, or you zone.
+It's on every job and in compact mode; `//jhud th off` hides it (`th on` brings it back).
+
 ## Compact mode
 
 `//jhud compact` (or `compact on` / `compact off`) shrinks the main window to the grid plus one
@@ -568,7 +577,7 @@ Notes last for the session.
 
 ## Credits
 
-Job-HUD 3.5 by Valdimar @ Phoenix.
+Job-HUD 3.6 by Valdimar @ Phoenix.
 
 The panel's look (colors, header strip, recessed grid) follows the LATTICE display in
 [RahvinGS](https://github.com/RahvinCode/Gearswap) by Rahvin (MIT License). Job-HUD's code is

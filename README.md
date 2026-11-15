@@ -1,12 +1,15 @@
 # Job-HUD
 
-A job-aware heads-up display for **Windower 4**. A dark bordered panel with a header strip,
+A job-aware heads-up display for **Windower 4**, drawn in the *LATTICE* style of
+[RahvinGS](https://github.com/RahvinCode/Gearswap): a dark bordered panel with a header strip,
 text rows on the left, a recessed grid in the middle, and a second text column on the right.
 Here the grid shows **cooldowns** instead of gear.
 
 What's on the panel changes with your main job. **The panel itself stays the same size on every
 job**, so it never jumps around or covers something new when you change jobs. Every character
 has its own settings file.
+
+![DRG](Job-HUD/docs/preview-DRG.png)
 
 ## Install
 
@@ -114,7 +117,7 @@ element's colour).
 | `tp` `hp` `mp` | One of them per line, colored by level |
 | `pet` | Pet name, with its HP% and TP indented on the line below (red `none` when no pet is out). Jobs with `pet_info` get more pet lines: **Ready** charges and time to the next one, **Tgt** (what the pet is attacking, with its HP%) and **Hate** (who that mob is attacking: `Pet` green, `You` yellow, anyone else red). On by default for BST |
 | `target` | Target name and HP% (add distance with `//jhud distance on`) |
-| `ws` | Three lines, always shown: your last weapon skill, its damage indented below it (`Miss` if it missed), and `SC` with the skillchain it closed and its damage (`SC --` when it didn't close one). If the weapon skill or skillchain **healed** the mob (it absorbs that element), its line turns **red** and shows `healed` after the amount; heals don't count as damage in `//jhud stats` |
+| `ws` | Three lines, always shown: your last weapon skill, its damage indented below it (`Miss` if it missed) followed by the TP you had right after it (`42,315  TP 212`: what the WS gave back; green at 1000+; hover for the TP it used), and `SC` with the skillchain it closed and its damage (`SC --` when it didn't close one). If the weapon skill or skillchain **healed** the mob (it absorbs that element), its line turns **red** and shows `healed` after the amount; heals don't count as damage in `//jhud stats` |
 | `upkeep` | Short tags for buffs you keep up: **green** on, **red** off. Wearing off, they **blink slowly**: **yellow** under 30 s left (`upkeep_warn`), **orange** under 10 s. The buff timers (`buffs` row), Aftermath, storm and Klimaform times do the same (`buff_warn`, 30 s) |
 | `buffs` | One line per tracked buff that's on you, with time left |
 | `timers` | Your own countdowns (see **Timers** below) |
@@ -132,7 +135,7 @@ element's colour).
 | `storm` | **SCH**: the storm on you (Storm II shown as `II`), in its element's colour, with time left; `--` when none |
 | `klimaform` | **SCH**: Klimaform time left (green), `--` when off |
 | `bounty` | **RNG** (right column): `Bounty Yes` (green) once your target has been hit with Bounty Shot (yours or another player's), `No` (red) until then; cleared when the mob dies or you zone. On RNG it always sits under the Hover and Velocity lines, even if it's not in your `right` list |
-| `wyvern` | **DRG** (right column), two lines. `Wyvern  880/1,600`: the wyvern's HP in numbers, coloured by HP% (green, yellow under 75%, orange under 50%, red under 25%). The game only gives a pet's HP %, so its max HP is **worked out from the damage it takes** (the damage numbers against how far its HP % drops; the middle of the last few readings); until the first clear hit it shows just the `%`. The learned max is **saved for each character** (`wyvern_hp_learned` in that character's settings file), so next time it's known from the start, and keeps updating from new hits (e.g. after a Wyvern HP gear change). If you know it, set `wyvern_hp` in DRG's settings to use that instead. `Steady  2:19  ~1,200`: Steady Wing on your wyvern, time left (3 minutes from when you used it; blinks in the last 30 s) and about how much it absorbs (1.3 x max HP - current HP, from the time of use; it can run out sooner). `Steady  Off` with its recast when it isn't up; the Steady line is always shown, even with no wyvern out |
+| `wyvern` | **DRG** (right column), two lines. `Wyvern  880/1,600`: the wyvern's HP in numbers, coloured by HP% (green, yellow under 75%, orange under 50%, red under 25%). When it's under DRG's pet alarm (`petalarm`, 40%) and **Spirit Link is ready**, the HP **blinks**: time to Spirit Link. The game only gives a pet's HP %, so its max HP is **worked out from the damage it takes** (the damage numbers against how far its HP % drops; the middle of the last few readings); until the first clear hit it shows just the `%`. The learned max is **saved for each character** (`wyvern_hp_learned` in that character's settings file), so next time it's known from the start, and keeps updating from new hits (e.g. after a Wyvern HP gear change). If you know it, set `wyvern_hp` in DRG's settings to use that instead. `Steady  ~2,080 total`: while Steady Wing is on your wyvern, about how much HP it has in all: its HP plus the shield (1.3 x max HP - its HP when you used it). The number's colour follows the time left (3 minutes; blinks in the last 30 s), and hovering shows the time, HP and shield. The game doesn't report what's left of the shield, so it counts as whole until damage gets through (the HP % drops below where it was); then it shows `~720 (used)`, just the HP. The brief HP dip the game shows right after Steady Wing is ignored. Until the max HP is known it shows the time left instead. `Steady  Off` with its recast when it isn't up; the Steady line is always shown, even with no wyvern out |
 | `migawari` | **NIN** (right column), two lines: `Migawari: On 49s` (green, with its time left; blinks as it ends) / `Off` (red), and under it `Stance: Yonin` (green), `Innin` or `None` (red) |
 | `velocity` | **RNG** (right column): `Velocity: On` (green) / `Off` (red) for Velocity Shot; right under Hover |
 | `hover` | **RNG** (right column): Hover Shot stacks out of 25 and whether you've moved since your last shot (`moved` green, `move!` yellow: move at least 1 yalm or the next shot adds nothing). The game doesn't report the stacks, so they're counted from your own ranged attacks and weapon skills while Hover Shot is on you: the first ranged attack (or weapon skill) at a target counts as 1, then +1 per shot fired 1 yalm or more from the last one; shooting a different target starts over at 1 (just switching targets without shooting changes nothing). `off` (with its recast) when Hover Shot isn't up |
@@ -150,6 +153,10 @@ The header shows your jobs and levels on the left (with your Master Level, e.g. 
 | `SNK` `INVIS` | green when Sneak / Invisible is on, **red** when it isn't |
 
 Also available: `pet`, `signet`, `sync`. Choose them with `//jhud header`.
+
+![RUN](Job-HUD/docs/preview-RUN.png)
+![WAR](Job-HUD/docs/preview-WAR.png)
+![BST](Job-HUD/docs/preview-BST.png)
 
 ## Your jobs
 
@@ -267,7 +274,16 @@ back beside the main window.
   everyone fits at 2 lines each.
 - It follows the main window when you drag it.
 
-![Party window](docs/preview-party-window.png)
+![Party window](Job-HUD/docs/preview-party-window.png)
+
+## Treasure Hunter (under the grid)
+
+A line under the grid shows the Treasure Hunter level on your target, `TH 9  Kaggen` (`TH --`
+when none has been seen). It reads TH the same way THTracker by Krizz does: a melee hit's added
+effect "Treasure Hunter effectiveness ... increases to N", or the same from a weapon skill or
+ability. Anyone's procs count. It follows your sub-target first, then your target, then the mob
+you're fighting, and clears when the mob dies, despawns, resets to full HP while idle, or you zone.
+It's on every job and in compact mode; `//jhud th off` hides it (`th on` brings it back).
 
 ## Compact mode
 
@@ -286,7 +302,7 @@ Each job can pick its own: `//jhud compact rows` lists them, `compact rows add|r
 changes them, `compact rows clear` goes back to the automatic list. The setting is per character;
 the party window isn't affected. The header drops PET, SIG and SYNC and always shows SNK and INVIS (even if they're not in your `header` list); if the narrower strip still can't fit everything, the other squares are left off first.
 
-![Compact mode](docs/preview-compact.png)
+![Compact mode](Job-HUD/docs/preview-compact.png)
 
 ## The right-hand column
 
@@ -305,6 +321,8 @@ rows (`//jhud right ...`); any left-side row works there too, plus:
 a window: it opens 3 s after the weapon skill and closes 10 s after it. Each skillchain opens a
 new window 1 s shorter than the last. After step 5, or after Radiance or Umbra, the chain is
 closed. This follows the timing used by the
+[Skillchains](https://github.com/Ivaar/Skillchains) addon; it only shows the countdown, since
+that addon lists what can continue the chain.
 
 **Debuff timers.** DRG: Angon. WAR: Tomahawk. RUN: Gambit, Rayke. A timer starts when your
 ability lands (not on a miss) and ends when the game says it wore off, or the mob dies, or you
@@ -372,6 +390,10 @@ which stay distinct with those kinds of colour blindness:
 The light theme also darkens coloured text so it reads on a light panel. None of this changes
 your `<colors>` in the settings file, so switching back is exact. You can also type the names:
 `//jhud look deuteranopia`, `protanopia`, `tritanopia` (or `//jhud palette ...`).
+
+![DNC with deut](Job-HUD/docs/preview-DNC-deut.png)
+
+![palettes and themes](Job-HUD/docs/preview-RUN-redgreen.png)
 
 ## Timers
 
@@ -530,6 +552,9 @@ put its modes on the HUD. Add the row on a job with `//jhud row add notes`, then
 send_command('jhud note Mode ' .. state.OffenseMode.value)
 send_command('jhud note WS ' .. state.WeaponskillMode.value)
 ```
+
+Notes last for the session.
+
 ## Good to know
 
 - **Updating** never needs a reset; see **Install → Updating**. To start a job from scratch
@@ -552,4 +577,8 @@ send_command('jhud note WS ' .. state.WeaponskillMode.value)
 
 ## Credits
 
-Job-HUD 3.2 by Valdimar @ Phoenix.
+Job-HUD 3.6 by Valdimar @ Phoenix.
+
+The panel's look (colors, header strip, recessed grid) follows the LATTICE display in
+[RahvinGS](https://github.com/RahvinCode/Gearswap) by Rahvin (MIT License). Job-HUD's code is
+its own; nothing from RahvinGS is required to use it.
