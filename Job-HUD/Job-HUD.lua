@@ -21,8 +21,16 @@
 
 _addon.name = 'Job-HUD'
 _addon.author = 'Valdimar @ Phoenix'
-_addon.version = '3.6'
+_addon.version = '3.7'
 _addon.commands = { 'jhud', 'jobhud' }
+
+-- Says in chat when a newer version is on GitHub (once per load; see update_check.lua)
+require('update_check').start({
+    name    = 'Job-HUD',
+    version = _addon.version,
+    url     = 'https://raw.githubusercontent.com/Valdimar/Job-HUD/main/Job-HUD/Job-HUD.lua',
+    page    = 'github.com/Valdimar/Job-HUD',
+})
 
 -- Jobs with a layout made for them (named in chat on load). Update when a job is added.
 -- In release order: WAR MNK WHM BLM RDM THF PLD DRK BST BRD RNG SMN (2002), SAM NIN DRG (Rise of
